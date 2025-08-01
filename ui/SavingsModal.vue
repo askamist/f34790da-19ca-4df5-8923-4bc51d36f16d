@@ -43,7 +43,7 @@ const emit = defineEmits(['close']);
           <savings-total :loading="loading" title="Estimated diesel savings" :total="loading && 1 || savingsData.totalDiesel"
             :monthly="loading ? 0 : savingsData.monthlyDiesel" unit="Liters" />
           <hr />
-          <savings-chart :loading="loading" :savingsData="savingsData" />
+          <savings-chart :loading="loading" :savingsData="savingsData"  :device-id="selectedDevice"/>
         </section>
       </div>
     </template>

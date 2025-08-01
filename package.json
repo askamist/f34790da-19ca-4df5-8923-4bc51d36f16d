@@ -1,12 +1,11 @@
 {
   "name": "ampd-coding-challenge",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "concurrently 'node --watch src/index.js' 'vite --clearScreen false'",
+    "dev": "concurrently --names backend-,frontend 'node --watch src/index.js' 'vite --clearScreen false'",
     "lint": "eslint . --ext .js,.vue",
     "lint:fix": "eslint . --ext .js,.vue --fix",
     "format": "prettier --write ."
@@ -15,8 +14,10 @@
     "type": "git",
     "url": "git+https://github.com/askamist/f34790da-19ca-4df5-8923-4bc51d36f16d.git"
   },
-  "author": "",
-  "license": "ISC",
+  "engines": {
+    "node": "v18.19.0"
+  },
+  "author": "S K Amarnath (askamist)",
   "bugs": {
     "url": "https://github.com/askamist/f34790da-19ca-4df5-8923-4bc51d36f16d/issues"
   },
@@ -35,13 +36,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue": "^5.2.4",
     "concurrently": "^9.2.0",
     "eslint": "^9.32.0",
     "eslint-plugin-vue": "^10.3.0",
     "globals": "^16.3.0",
     "prettier": "^3.6.2",
-    "vite": "^7.0.6",
+    "vite": "^6.3.5",
     "vite-plugin-vue-devtools": "^8.0.0"
   }
 }
