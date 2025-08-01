@@ -1,24 +1,33 @@
 <script setup>
 import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
+import { SVGRenderer } from "echarts/renderers";
 import { BarChart } from 'echarts/charts';
 import { GridComponent } from "echarts/components";
 import {
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
+  ToolboxComponent,
+  DataZoomComponent
 } from "echarts/components";
 import VChart from "vue-echarts";
 import { ref, watch } from "vue";
 import humanNumber from "human-number";
 
+const colors = [
+  '#43CFA7',
+  '#4A46FF'
+]
+
 use([
-  CanvasRenderer,
+  SVGRenderer,
   BarChart,
   GridComponent,
   TitleComponent,
   TooltipComponent,
-  LegendComponent
+  LegendComponent,
+  ToolboxComponent,
+  DataZoomComponent
 ]);
 
 const minDatetime = ref(null);
@@ -26,6 +35,12 @@ const maxDatetime = ref(null);
 const fromDatetime = ref(null);
 const toDatetime = ref(null);
 const initialized = ref(false);
+const zoomLevel = ref('month');
+const dataZoom = ref({
+  type: 'inside',
+  start: 0,
+  end: 100
+});
 
 const selectedCarbonTotal = ref(0);
 const selectedDieselTotal = ref(0);
@@ -43,11 +58,33 @@ const { savingsData, loading, deviceId } = defineProps({
 });
 
 const option = ref({
+  color: colors,
   legend: {
     bottom: 10,
   },
   tooltip: {
-    trigger: 'axis'
+    trigger: 'axis',
+  },
+  dataZoom: [
+    {
+      ...dataZoom.value,
+    },
+    {
+      start: 0,
+      end: 100,
+    }
+  ],
+  toolbox: {
+    feature: {
+      dataZoom: {
+        yAxisIndex: 'none'
+      },
+      restore: {},
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    top: 10,
   },
   xAxis: {
     type: 'category',
@@ -95,8 +132,7 @@ const humanNumberMapper = (n) => n.toFixed(1);
 const updateChart = (newData, filtered = false) => {
   if (!newData) return;
   console.log('Savings data updated:', { savingsData, newData });
-  const sortedMonthKeys = Object.keys(newData.monthLabels).sort();
-  console.log('Sorted month keys:', sortedMonthKeys);
+  const sortedMonthKeys = Object.keys(newData.detailsLabels).sort();
 
   if (!filtered) {
     minDatetime.value = new Date(
@@ -123,21 +159,56 @@ const updateChart = (newData, filtered = false) => {
 
   option.value = {
     ...option.value,
+    dataZoom: [
+      {
+        ...dataZoom.value,
+      },
+      {
+        start: dataZoom.value.start,
+        end: dataZoom.value.end,
+      }
+    ],
     xAxis: {
       ...option.value.xAxis,
-      data: sortedMonthKeys.map(key => newData.monthLabels[key])
+      data: sortedMonthKeys.map(key => newData.detailsLabels[key])
     },
     series: [{
       ...option.value.series[0],
-      data: sortedMonthKeys.map(key => newData.monthlyCarbonSavings[key])
+      data: sortedMonthKeys.map(key => newData.carbonSavingsDetails[key])
     }, {
       ...option.value.series[1],
-      data: sortedMonthKeys.map(key => newData.monthlyDieselSavings[key])
+      data: sortedMonthKeys.map(key => newData.dieselSavingsDetails[key])
     }]
   };
-
-  console.log('Updated option:', option.value);
 }
+
+const handleZoom = (event) => {
+  const { start, end } = event.batch[0];
+  console.log(`Zoom event: gap: ${end - start}, zoomLevel: ${zoomLevel.value}`);
+  dataZoom.value = {
+    type: 'inside',
+    start,
+    end
+  };
+  if (end - start < 25 && zoomLevel.value !== 'day') {
+    zoomLevel.value = 'day';
+    fetchFreshData()
+  } else if (end - start >= 25 && zoomLevel.value !== 'month') {
+    zoomLevel.value = 'month';
+    fetchFreshData()
+  }
+};
+
+const fetchFreshData = async () => {
+  if (initialized.value) {
+    const response = await fetch(`http://localhost:3000/api/savings/${deviceId}?zoom_level=${zoomLevel.value}&from=${fromDatetime.value.toISOString()}&to=${toDatetime.value.toISOString()}`)
+    if (!response.ok) {
+      throw new Error('Error fetching device savings data');
+    }
+    const filteredData = await response.json();
+    updateChart(filteredData, true);
+  }
+};
 
 watch(() => savingsData, (newData) => {
   updateChart(newData, false);
@@ -146,14 +217,7 @@ watch(() => savingsData, (newData) => {
 
 watch([fromDatetime, toDatetime], async ([from, to]) => {
   console.log('Datetime changed:', from, to);
-  if ((from || to) && initialized.value) {
-    const response = await fetch(`http://localhost:3000/api/savings/${deviceId}?from=${fromDatetime.value.toISOString()}&to=${toDatetime.value.toISOString()}`)
-    if (!response.ok) {
-      throw new Error('Error fetching device savings data');
-    }
-    const filteredData = await response.json();
-    updateChart(filteredData, true);
-  }
+  if (from || to) fetchFreshData()
 });
 </script>
 
@@ -173,19 +237,21 @@ watch([fromDatetime, toDatetime], async ([from, to]) => {
     <div class="column is-6">
       <h2 class="is-size-6 has-text-weight-bold">Monthly Carbon Savings</h2>
       <p class="is-size-7">Sum of selected date range</p>
-      <p v-if="!loading" class="total-value is-size-4">{{ humanNumber(selectedCarbonTotal, humanNumberMapper) }}</p>
+      <p v-if="!loading" class="blue total-value is-size-4">{{ humanNumber(selectedCarbonTotal, humanNumberMapper) }}
+      </p>
       <div v-if="loading" class="skeleton-block">__._</div>
-      <p class="total-unit is-size-7">Tonnes</p>
+      <p class="blue total-unit is-size-7">Tonnes</p>
     </div>
     <div class="column is-6">
       <h2 class="is-size-6 has-text-weight-bold">Monthly Diesel Savings</h2>
       <p class="is-size-7">Sum of selected date range</p>
-      <p v-if="!loading" class="total-value is-size-4">{{ humanNumber(selectedDieselTotal, humanNumberMapper) }}</p>
+      <p v-if="!loading" class="green total-value is-size-4">{{ humanNumber(selectedDieselTotal, humanNumberMapper) }}
+      </p>
       <div v-if="loading" class="skeleton-block">__._</div>
-      <p class="total-unit is-size-7">Liters</p>
+      <p class="green total-unit is-size-7">Liters</p>
     </div>
   </div>
-  <v-chart :loading="loading" :option="option" style="width: 100%; height: 300px;" />
+  <v-chart :loading="loading" :option="option" style="width: 100%; height: 250px;" @dataZoom="handleZoom" />
 </template>
 
 <style scoped>
@@ -198,5 +264,13 @@ watch([fromDatetime, toDatetime], async ([from, to]) => {
   line-height: 1.6rem;
   color: #aaa;
   /* The green color */
+}
+
+.blue {
+  color: var(--the-blue);
+}
+
+.green {
+  color: var(--the-green);
 }
 </style>

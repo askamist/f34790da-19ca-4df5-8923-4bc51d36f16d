@@ -13,8 +13,10 @@ Run npm servers
 By default backend is hosted on `http://localhost:3000` and frontend on `http://localhost:5173`
 
 
-## API details
+## APIs
 
 - `/health` - just returns OK
 - `/api/devices` - returns device list
-- `/api/savings/:device-id` - returns the consolidated saving data for the given device-id, accepts optional query params `from` and `to` which will be use to filter the data used.
+- `/api/savings/:device-id` - returns the consolidated saving data for the given device-id
+  - accepts optional query params `from` and `to` which will be use to filter the data used.
+  - accepts optional query params `zoom_level`, value is 'month', 'day', default is 'month'

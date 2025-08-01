@@ -1,5 +1,6 @@
 <script setup>
 defineProps({
+  color: String,
   title: String,
   subTitle: String,
   loading: Boolean,
@@ -15,21 +16,25 @@ defineProps({
   <div class="columns has-text-centered">
     <div class="column">
       <p class="is-size-6">Total</p>
-      <p v-if="!loading" class="total-value is-size-4">{{ total.toFixed(1) }}</p>
+      <p v-if="!loading" class="total-value is-size-4" :class="color">{{ total.toFixed(1) }}</p>
       <div v-if="loading" class="skeleton-block">__._</div>
-      <p class="total-unit is-size-7">{{ unit }}</p>
+      <p class="total-unit is-size-7" :class="color">{{ unit }}</p>
     </div>
     <div class="column">
       <p class="is-size-6">Monthly</p>
-      <p v-if="!loading" class="total-value is-size-4">{{ monthly.toFixed(1) }}</p>
+      <p v-if="!loading" class="total-value is-size-4" :class="[color]">{{ monthly.toFixed(1) }}</p>
       <div v-if="loading" class="skeleton-block">__._</div>
-      <p class="total-unit is-size-7">{{ unit }}</p>
+      <p class="total-unit is-size-7" :class="[color]">{{ unit }}</p>
     </div>
   </div>
 </template>
 <style scoped>
-.total-value,
-.total-unit {
+.blue.total-value,
+.blue.total-unit {
+  color: var(--the-blue);
+}
+.green.total-value,
+.green.total-unit {
   color: var(--the-green);
 }
 </style>

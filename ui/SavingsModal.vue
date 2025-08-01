@@ -36,11 +36,11 @@ const emit = defineEmits(['close']);
           <p class="guidelines is-size-7 has-text-weight-semibold">Download general guidelines on the estimated carbon &
             diesel savings calculations.</p>
           <hr />
-          <savings-total :loading="loading" title="Estimated carbon savings" subTitle="1 Tonne = 1,000 kg"
+          <savings-total color="green" :loading="loading" title="Estimated carbon savings" subTitle="1 Tonne = 1,000 kg"
             :total="loading && 1 || savingsData.totalCarbon / 1000" :monthly="loading && 1 || savingsData.monthlyCarbon / 1000"
             unit="Tonnes" />
           <hr />
-          <savings-total :loading="loading" title="Estimated diesel savings" :total="loading && 1 || savingsData.totalDiesel"
+          <savings-total color="blue" :loading="loading" title="Estimated diesel savings" :total="loading && 1 || savingsData.totalDiesel"
             :monthly="loading ? 0 : savingsData.monthlyDiesel" unit="Liters" />
           <hr />
           <savings-chart :loading="loading" :savingsData="savingsData"  :device-id="selectedDevice"/>
@@ -51,7 +51,8 @@ const emit = defineEmits(['close']);
 </template>
 <style>
 .modal-card {
-  --the-green: #4dc6b4;
+  --the-green: #43CFA7;
+  --the-blue: #4A46FF;
 }
 </style>
 <style scoped>
@@ -63,7 +64,7 @@ const emit = defineEmits(['close']);
 }
 
 .modal-card-head {
-  background-color: #00d1b225;
+  background-color: #6bdfce20;
   border: none;
 }
 
