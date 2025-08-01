@@ -18,13 +18,13 @@ defineProps({
     <div class="column has-text-centered">
       <p class="is-size-6">Total</p>
       <p v-if="!loading" class="total-value is-size-4">{{ total.toFixed(1) }}</p>
-      <div v-if="loading" class="skeleton-block"></div>
+      <div v-if="loading" class="skeleton-block">__._</div>
       <p class="total-unit is-size-7">{{ unit }}</p>
     </div>
     <div class="column has-text-centered">
       <p class="is-size-6">Monthly</p>
       <p v-if="!loading" class="total-value is-size-4">{{ monthly.toFixed(1) }}</p>
-      <div v-if="loading" class="skeleton-block"></div>
+      <div v-if="loading" class="skeleton-block">__._</div>
       <p class="total-unit is-size-7">{{ unit }}</p>
     </div>
   </div>

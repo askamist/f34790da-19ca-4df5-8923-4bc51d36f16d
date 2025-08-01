@@ -21,7 +21,6 @@ const fetchData = async () => {
     }
     data.devices = await response.json();
     isLoading.value = false;
-    console.log('Data fetched successfully:', data.devices);
   } catch (error) {
     console.error('Error fetching data:', error);
   }

@@ -29,6 +29,7 @@
     "date-fns": "^4.1.0",
     "echarts": "^5.6.0",
     "hono": "^4.8.10",
+    "human-number": "^2.0.4",
     "vue": "^3.5.18",
     "vue-echarts": "^7.0.3"
   },

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import SavingsTotal from './SavingsTotal.vue';
+import SavingsChart from './SavingsChart.vue';
 
 const { isModalOpen, selectedDevice } = defineProps({
   isModalOpen: Boolean,
@@ -8,13 +9,11 @@ const { isModalOpen, selectedDevice } = defineProps({
 });
 
 const loading = ref(true);
-const savingsData = ref(null);
+const savingsData = ref({});
 
 onMounted(async () => {
-  console.log('Loading Data for Selected Device:', selectedDevice);
-
   const response = await fetch('http://localhost:3000/api/savings/' + selectedDevice);
-  console.log('Response:', response);
+
   if (!response.ok) {
     throw new Error('Error fetching device savings data');
   }
@@ -44,9 +43,9 @@ const emit = defineEmits(['close']);
           <savings-total :loading="loading" title="Estimated diesel savings" :total="loading && 1 || savingsData.totalDiesel"
             :monthly="loading ? 0 : savingsData.monthlyDiesel" unit="Liters" />
           <hr />
+          <savings-chart :loading="loading" :savingsData="savingsData" />
         </section>
       </div>
-
     </template>
   </b-modal>
 </template>

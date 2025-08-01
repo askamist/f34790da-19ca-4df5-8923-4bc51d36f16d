@@ -11,7 +11,7 @@ function getConsolidatedSavings(savingsData) {
   const monthLabels = {};
   const [totalCarbon, totalDiesel] = savingsData.reduce(
     ([c, d], item) => {
-      const monthKey = format(item.timestamp, 'MMyyyy');
+      const monthKey = format(item.timestamp, 'yyyyMM');
       const monthLabel = format(item.timestamp, 'MMM yyyy');
       monthlyCarbonSavings[monthKey] = (monthlyCarbonSavings[monthKey] || 0) + item.carbonSaved
       monthlyDieselSavings[monthKey] = (monthlyDieselSavings[monthKey] || 0) + item.fuelSaved
@@ -26,8 +26,9 @@ function getConsolidatedSavings(savingsData) {
     totalDiesel,
     monthlyCarbon: totalCarbon / numberOfMonths,
     monthlyDiesel: totalDiesel / numberOfMonths,
-    monthlyCarbonSavings: monthlyCarbonSavings,
-    monthlyDieselSavings: monthlyDieselSavings
+    monthlyCarbonSavings,
+    monthlyDieselSavings,
+    monthLabels,
   }
 }
 
